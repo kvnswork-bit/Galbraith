@@ -1,0 +1,473 @@
+import { SiteData } from '../types';
+
+export const initialSiteData: SiteData = {
+  settings: {
+    logoUrl: '/assets/logo.jpg',
+    heroImageUrl: '/assets/hero.jpg',
+    heroSlogan: 'The concept commands the medium. An artist unconfined by discipline.',
+    heroSubhead: 'Artist · Creative Director · Designer',
+    editorialIntro: 'Kevin Galbraith operates at the confluence of contemporary art, strategic advertising, and spatial visual identity. Refusing to let a single medium dictate artistic intent, each project is approached from first principles—where the narrative and conceptual resonance strictly dictate the aesthetic execution.',
+    aboutTitle: 'KEVIN GALBRAITH',
+    aboutRole: 'Artist / Creative Director / Designer',
+    aboutBio: 'Kevin Galbraith is a multidisciplinary artist and creative director whose work spans advertising campaigns, global brand identities, architectural & editorial photography, print magazine direction, and non-linear experimental media.\n\nRejecting orthodox boundaries between commercial design and fine art, Galbraith treats the concept as the sole authoritative master. Whether directing global brand architecture or sculpting raw material in the studio, the work is characterized by extreme restraint, architectural rigor, and deliberate negative space.',
+    aboutPhilosophy: '“The medium is never the identity. The concept is the architecture; the medium is merely the material chosen to build it.”',
+    aboutDisciplines: [
+      'Advertising & Campaign Direction',
+      'Editorial & Publication Design',
+      'Brand Identity Systems',
+      'Fine Art Photography & Architecture',
+      'Creative Direction & Spatial Concepts',
+      'Experimental & Mixed Media'
+    ],
+    contactEmail: 'studio@kevingalbraith.art',
+    contactLocation: 'Los Angeles / New York / Paris',
+    copyrightText: '© ' + new Date().getFullYear() + ' Kevin Galbraith. All Rights Reserved.'
+  },
+  sections: [
+    {
+      id: 'sec-adv',
+      slug: 'advertisement',
+      name: 'ADVERTISEMENT',
+      description: 'Art-directed commercial narratives, global campaigns, and high-contrast editorial brand communications.',
+      order: 1,
+      isPublished: true
+    },
+    {
+      id: 'sec-photo',
+      slug: 'photography',
+      name: 'PHOTOGRAPHY',
+      description: 'Architectural studies, chiaroscuro atmosphere, and editorial medium-format documentation.',
+      order: 2,
+      isPublished: true
+    },
+    {
+      id: 'sec-mag',
+      slug: 'magazines',
+      name: 'MAGAZINES',
+      description: 'Editorial archives, cover compositions, typographical systems, and multi-page print spreads.',
+      order: 3,
+      isPublished: true
+    },
+    {
+      id: 'sec-logos',
+      slug: 'logos',
+      name: 'LOGOS',
+      description: 'Reductive identity marks, typographic seals, brand signatures, and monolithic symbols.',
+      order: 4,
+      isPublished: true
+    },
+    {
+      id: 'sec-idlemind',
+      slug: 'idle-mind',
+      name: 'IDLE MIND',
+      description: 'Unconstrained studio experiments, sculptural forms, digital artifacts, and speculative concepts.',
+      order: 5,
+      isPublished: true
+    }
+  ],
+  projects: [
+    // ADVERTISEMENT (3 projects)
+    {
+      id: 'adv-01',
+      sectionId: 'sec-adv',
+      title: 'MONOLITH NOIR',
+      client: 'AURA LUXURY AUTOMOTIVE',
+      year: '2025',
+      category: 'Global Launch Campaign',
+      description: 'A cinematic, high-contrast campaign capturing the sculptural minimalism of silent propulsion. Developed across large-scale out-of-home installations, print monographs, and digital film.',
+      mainImage: '', // Solid black placeholder until uploaded
+      images: [
+        { id: 'adv-01-1', url: '', caption: 'Monograph cover and tactile box sleeve', order: 1, aspectRatio: 'landscape' },
+        { id: 'adv-01-2', url: '', caption: 'Large format outdoor billboard study, Tokyo', order: 2, aspectRatio: 'landscape' },
+        { id: 'adv-01-3', url: '', caption: 'Chiaroscuro detail study of bodywork curvature', order: 3, aspectRatio: 'portrait' }
+      ],
+      order: 1,
+      isPublished: true,
+      layoutStyle: 'editorial-split'
+    },
+    {
+      id: 'adv-02',
+      sectionId: 'sec-adv',
+      title: 'THE ARCHITECTURAL HOUR',
+      client: 'KRONOS HAUTE HORLOGERIE',
+      year: '2024',
+      category: 'International Print & Digital',
+      description: 'A deliberate reduction of timepiece advertising to pure geometry and structural shadow, juxtaposing brutalist stone surfaces with micro-mechanical precision.',
+      mainImage: '',
+      images: [
+        { id: 'adv-02-1', url: '', caption: 'Double-page print insertion, Architectural Digest', order: 1, aspectRatio: 'landscape' },
+        { id: 'adv-02-2', url: '', caption: 'Materiality juxtaposition: Basalt and Tourbillon', order: 2, aspectRatio: 'portrait' }
+      ],
+      order: 2,
+      isPublished: true,
+      layoutStyle: 'editorial-split'
+    },
+    {
+      id: 'adv-03',
+      sectionId: 'sec-adv',
+      title: 'SILENCE & SYNTHESIS',
+      client: 'SONOS LABS',
+      year: '2024',
+      category: 'Brand Direction & Spatial Ad',
+      description: 'Spatial acoustic campaign exploring the physical sensation of silence in urban environments. Featured minimalist sound sculptures and bespoke typography.',
+      mainImage: '',
+      images: [
+        { id: 'adv-03-1', url: '', caption: 'Sonic gallery installation layout', order: 1, aspectRatio: 'landscape' },
+        { id: 'adv-03-2', url: '', caption: 'Typographic tactile poster series', order: 2, aspectRatio: 'square' }
+      ],
+      order: 3,
+      isPublished: true,
+      layoutStyle: 'editorial-split'
+    },
+
+    // PHOTOGRAPHY (6 projects)
+    {
+      id: 'photo-01',
+      sectionId: 'sec-photo',
+      title: 'TERMINUS AT DUSK',
+      client: 'Fine Art Series',
+      year: '2025',
+      category: 'Architectural Perspective',
+      description: 'An exploration of monumental transit architecture, vaulted wooden coffering, and the quiet transit of light across glazed terracotta floors.',
+      mainImage: '/assets/hero.jpg', // uses supplied architectural photograph
+      images: [
+        { id: 'photo-01-1', url: '/assets/hero.jpg', caption: 'Vaulted timber coffering and terracotta perspective', order: 1, aspectRatio: 'portrait' }
+      ],
+      order: 1,
+      isPublished: true,
+      layoutStyle: 'full-gallery'
+    },
+    {
+      id: 'photo-02',
+      sectionId: 'sec-photo',
+      title: 'GEOMETRIC BRUTALISM II',
+      client: 'Monograph Series',
+      year: '2024',
+      category: 'Monochrome Medium Format',
+      description: 'Studies in cast concrete, deep afternoon shadows, and tectonic rhythm across mid-century European public works.',
+      mainImage: '',
+      images: [
+        { id: 'photo-02-1', url: '', caption: 'Facade relief angle', order: 1, aspectRatio: 'portrait' }
+      ],
+      order: 2,
+      isPublished: true,
+      layoutStyle: 'full-gallery'
+    },
+    {
+      id: 'photo-03',
+      sectionId: 'sec-photo',
+      title: 'THE COASTAL VOID',
+      client: 'Gallery Exhibition',
+      year: '2024',
+      category: 'Landscape / Horizon',
+      description: 'Long-exposure seascape studies capturing mist, basalt formations, and reduction of the horizon line to pure tonal gradient.',
+      mainImage: '',
+      images: [
+        { id: 'photo-03-1', url: '', caption: 'Horizon line study IV, North Atlantic', order: 1, aspectRatio: 'landscape' }
+      ],
+      order: 3,
+      isPublished: true,
+      layoutStyle: 'full-gallery'
+    },
+    {
+      id: 'photo-04',
+      sectionId: 'sec-photo',
+      title: 'INTERIOR SHADOW DYNAMICS',
+      client: 'Personal Archive',
+      year: '2023',
+      category: 'Spatial Light Study',
+      description: 'Observation of filtered ambient light cascading through louvers into minimalist gallery environments.',
+      mainImage: '',
+      images: [
+        { id: 'photo-04-1', url: '', caption: 'Louver shadow study', order: 1, aspectRatio: 'square' }
+      ],
+      order: 4,
+      isPublished: true,
+      layoutStyle: 'full-gallery'
+    },
+    {
+      id: 'photo-05',
+      sectionId: 'sec-photo',
+      title: 'MONUMENTAL PIERS',
+      client: 'Architectural Commission',
+      year: '2023',
+      category: 'Structural Documentation',
+      description: 'Full-width panoramic capture of subterranean concrete foundations and architectural piers in Lisbon.',
+      mainImage: '',
+      images: [
+        { id: 'photo-05-1', url: '', caption: 'Pier foundation panorama', order: 1, aspectRatio: 'full' }
+      ],
+      order: 5,
+      isPublished: true,
+      layoutStyle: 'full-gallery'
+    },
+    {
+      id: 'photo-06',
+      sectionId: 'sec-photo',
+      title: 'SILHOUETTE IN TRANSIT',
+      client: 'Documentary Study',
+      year: '2023',
+      category: 'Urban Chiaroscuro',
+      description: 'Candid human scale against oversized monolithic architectural portals.',
+      mainImage: '',
+      images: [
+        { id: 'photo-06-1', url: '', caption: 'Portal silhouette study', order: 1, aspectRatio: 'portrait' }
+      ],
+      order: 6,
+      isPublished: true,
+      layoutStyle: 'full-gallery'
+    },
+
+    // MAGAZINES (3 projects)
+    {
+      id: 'mag-01',
+      sectionId: 'sec-mag',
+      title: 'TABULA RASA — ISSUE 08',
+      client: 'TABULA RASA PUBLISHING',
+      year: '2025',
+      category: 'Art Direction & Typographic System',
+      description: 'A 240-page quarterly publication examining modern architectural discourse. Comprehensive redesign of editorial grid, cover treatment, and bespoke headline typeface.',
+      mainImage: '',
+      images: [
+        { id: 'mag-01-1', url: '', caption: 'Issue 08 Hardcover with debossed black foil', order: 1, aspectRatio: 'portrait' },
+        { id: 'mag-01-2', url: '', caption: 'Feature spread: "The Architecture of Absence"', order: 2, aspectRatio: 'landscape' },
+        { id: 'mag-01-3', url: '', caption: 'Editorial index & typographic colophon', order: 3, aspectRatio: 'landscape' },
+        { id: 'mag-01-4', url: '', caption: 'Centerfold photo essay spread', order: 4, aspectRatio: 'landscape' }
+      ],
+      order: 1,
+      isPublished: true,
+      layoutStyle: 'magazine-archive'
+    },
+    {
+      id: 'mag-02',
+      sectionId: 'sec-mag',
+      title: 'CINETIC REVIEW',
+      client: 'FILM ARCHIVE SOCIETY',
+      year: '2024',
+      category: 'Complete Editorial Archive',
+      description: 'Art direction for the bi-annual journal of auteur cinema. Minimalist stark black-and-white page design prioritizing still imagery and critical essays.',
+      mainImage: '',
+      images: [
+        { id: 'mag-02-1', url: '', caption: 'Cover design featuring 35mm frame enlargement', order: 1, aspectRatio: 'portrait' },
+        { id: 'mag-02-2', url: '', caption: 'Essay layout: Godard and the Graphic Page', order: 2, aspectRatio: 'landscape' }
+      ],
+      order: 2,
+      isPublished: true,
+      layoutStyle: 'magazine-archive'
+    },
+    {
+      id: 'mag-03',
+      sectionId: 'sec-mag',
+      title: 'STRUCTURE & VOID',
+      client: 'BERLIN DESIGN PRESS',
+      year: '2023',
+      category: 'Special Edition Monograph',
+      description: 'Casebound monograph honoring constructivist typography. Strict mathematical grid layout with stark black dividers.',
+      mainImage: '',
+      images: [
+        { id: 'mag-03-1', url: '', caption: 'Monograph dust jacket and slipcase', order: 1, aspectRatio: 'portrait' },
+        { id: 'mag-03-2', url: '', caption: 'Typographic spread analysis', order: 2, aspectRatio: 'landscape' }
+      ],
+      order: 3,
+      isPublished: true,
+      layoutStyle: 'magazine-archive'
+    },
+
+    // LOGOS (6 projects)
+    {
+      id: 'logo-01',
+      sectionId: 'sec-logos',
+      title: 'KEVIN GALBRAITH SIGNATURE',
+      client: 'Galbraith Studio',
+      year: '2025',
+      category: 'Personal Artist Mark',
+      description: 'Fluid, bespoke cursive handwriting mark expressing individual authorship, organic gesture, and artistic presence.',
+      mainImage: '/assets/logo.jpg', // uses supplied signature logo
+      images: [
+        { id: 'logo-01-1', url: '/assets/logo.jpg', caption: 'Primary signature emblem', order: 1, aspectRatio: 'landscape' }
+      ],
+      order: 1,
+      isPublished: true,
+      layoutStyle: 'identity-focus'
+    },
+    {
+      id: 'logo-02',
+      sectionId: 'sec-logos',
+      title: 'ATELIER VANDENBERG',
+      client: 'Vandenberg Haute Couture',
+      year: '2024',
+      category: 'Fashion House Identity',
+      description: 'Surgical letterspacing and geometric serif construction for a Parisian bespoke atelier.',
+      mainImage: '',
+      images: [
+        { id: 'logo-02-1', url: '', caption: 'Wordmark on blind-embossed cotton stock', order: 1, aspectRatio: 'landscape' }
+      ],
+      order: 2,
+      isPublished: true,
+      layoutStyle: 'identity-focus'
+    },
+    {
+      id: 'logo-03',
+      sectionId: 'sec-logos',
+      title: 'OBSIDIAN CAPITAL',
+      client: 'Obsidian Partners',
+      year: '2024',
+      category: 'Monolithic Symbol',
+      description: 'A pure geometric faceted glyph derived from volcanic glass cleavage planes.',
+      mainImage: '',
+      images: [
+        { id: 'logo-03-1', url: '', caption: 'Primary glyph and secondary lockup', order: 1, aspectRatio: 'square' }
+      ],
+      order: 3,
+      isPublished: true,
+      layoutStyle: 'identity-focus'
+    },
+    {
+      id: 'logo-04',
+      sectionId: 'sec-logos',
+      title: 'CHRONO METRIC LABS',
+      client: 'Metric Research',
+      year: '2024',
+      category: 'Technical Identity Mark',
+      description: 'Modular grid-based mark referencing chronometry and optical measurement systems.',
+      mainImage: '',
+      images: [
+        { id: 'logo-04-1', url: '', caption: 'Vector construction and lockups', order: 1, aspectRatio: 'landscape' }
+      ],
+      order: 4,
+      isPublished: true,
+      layoutStyle: 'identity-focus'
+    },
+    {
+      id: 'logo-05',
+      sectionId: 'sec-logos',
+      title: 'LUMEN CONTEMPORARY',
+      client: 'Lumen Museum of Art',
+      year: '2023',
+      category: 'Cultural Institution Mark',
+      description: 'Dynamic reductive identity whose letterform widths modulate based on ambient gallery illumination.',
+      mainImage: '',
+      images: [
+        { id: 'logo-05-1', url: '', caption: 'Museum environmental signage mark', order: 1, aspectRatio: 'landscape' }
+      ],
+      order: 5,
+      isPublished: true,
+      layoutStyle: 'identity-focus'
+    },
+    {
+      id: 'logo-06',
+      sectionId: 'sec-logos',
+      title: 'SOLITUDE SOUND ARCHIVE',
+      client: 'Acoustic Arts Foundation',
+      year: '2023',
+      category: 'Acoustic Identity Mark',
+      description: 'An unbroken single-line resonant symbol depicting pure harmonic frequency.',
+      mainImage: '',
+      images: [
+        { id: 'logo-06-1', url: '', caption: 'Resonant wave glyph', order: 1, aspectRatio: 'square' }
+      ],
+      order: 6,
+      isPublished: true,
+      layoutStyle: 'identity-focus'
+    },
+
+    // IDLE MIND (6 projects)
+    {
+      id: 'idle-01',
+      sectionId: 'sec-idlemind',
+      title: '01 / RESIDUAL WEIGHT',
+      client: 'Personal Experiment',
+      year: '2025',
+      category: 'Cast Iron & Raw Linen',
+      description: 'An ongoing physical investigation into tension, gravity, and the physical memory of materials under continuous shear stress.',
+      mainImage: '',
+      images: [
+        { id: 'idle-01-1', url: '', caption: 'Iron compression on bleached Belgian linen', order: 1, aspectRatio: 'portrait' },
+        { id: 'idle-01-2', url: '', caption: 'Studio setup and material fatigue study', order: 2, aspectRatio: 'landscape' }
+      ],
+      order: 1,
+      isPublished: true,
+      layoutStyle: 'experimental'
+    },
+    {
+      id: 'idle-02',
+      sectionId: 'sec-idlemind',
+      title: '02 / NOISE & COHERENCE',
+      client: 'Algorithmic Artifacts',
+      year: '2025',
+      category: 'Generative Plotter Drawings',
+      description: 'Custom Python scripts rendering vector pen trajectories on 300gsm Somerset paper using Japanese sumi ink.',
+      mainImage: '',
+      images: [
+        { id: 'idle-02-1', url: '', caption: 'High-density ink dispersion study #12', order: 1, aspectRatio: 'square' }
+      ],
+      order: 2,
+      isPublished: true,
+      layoutStyle: 'experimental'
+    },
+    {
+      id: 'idle-03',
+      sectionId: 'sec-idlemind',
+      title: '03 / FRAGMENTED PLASTER RELIEF',
+      client: 'Sculptural Study',
+      year: '2024',
+      category: 'Direct Casting',
+      description: 'Casting negative spaces of discarded packaging containers into monolithic dental plaster blocks.',
+      mainImage: '',
+      images: [
+        { id: 'idle-03-1', url: '', caption: 'Plaster cast relief #04', order: 1, aspectRatio: 'portrait' }
+      ],
+      order: 3,
+      isPublished: true,
+      layoutStyle: 'experimental'
+    },
+    {
+      id: 'idle-04',
+      sectionId: 'sec-idlemind',
+      title: '04 / UNFINISHED MANIFESTO',
+      client: 'Studio Texts',
+      year: '2024',
+      category: 'Print & Erasure',
+      description: 'Hand-typed fragments on an Olivetti Lettera 22, systematically redacted with oil stick.',
+      mainImage: '',
+      images: [
+        { id: 'idle-04-1', url: '', caption: 'Page 03 with manual redaction', order: 1, aspectRatio: 'portrait' }
+      ],
+      order: 4,
+      isPublished: true,
+      layoutStyle: 'experimental'
+    },
+    {
+      id: 'idle-05',
+      sectionId: 'sec-idlemind',
+      title: '05 / DARK FIELD REFLECTIONS',
+      client: 'Optics Experiment',
+      year: '2023',
+      category: 'Mirrored Black Glass',
+      description: 'Non-silvered black obsidian glass panels capturing inverted silhouettes of exhibition visitors.',
+      mainImage: '',
+      images: [
+        { id: 'idle-05-1', url: '', caption: 'Specular reflection in darkened room', order: 1, aspectRatio: 'landscape' }
+      ],
+      order: 5,
+      isPublished: true,
+      layoutStyle: 'experimental'
+    },
+    {
+      id: 'idle-06',
+      sectionId: 'sec-idlemind',
+      title: '06 / CHRONO PHANTOM',
+      client: 'Temporal Video Loop',
+      year: '2023',
+      category: 'Single Channel Video',
+      description: '4K continuous loop tracking the microscopic melting of black beeswax under a single high-intensity spotlight.',
+      mainImage: '',
+      images: [
+        { id: 'idle-06-1', url: '', caption: 'Video still at frame 4,800', order: 1, aspectRatio: 'landscape' }
+      ],
+      order: 6,
+      isPublished: true,
+      layoutStyle: 'experimental'
+    }
+  ]
+};
