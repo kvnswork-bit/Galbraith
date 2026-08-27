@@ -147,7 +147,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
               {/* Curated Grid of Projects for this section */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-                {sectionProjects.slice(0, 3).map((project, pIdx) => (
+                {sectionProjects.map((project, pIdx) => (
                   <div
                     key={project.id}
                     onClick={() => onSelectProject(project)}

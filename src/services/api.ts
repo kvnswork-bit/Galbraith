@@ -1,6 +1,16 @@
 import { SiteData, SiteSettings, PortfolioSection, PortfolioProject } from '../types';
 import { initialSiteData } from '../data/initialData';
-import { getDb, doc, getDoc, setDoc, onSnapshot, Unsubscribe } from '../lib/firebase';
+import {
+  getDb,
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+  onSnapshot,
+  Unsubscribe
+} from '../lib/firebase';
 import { optimizeImageFile } from '../utils/imageCompressor';
 
 const API_BASE = '/api';
@@ -31,51 +41,132 @@ export const apiService = {
     if (!db) {
       return () => {};
     }
+
     try {
-      const docRef = doc(db, 'site_content', 'main');
-      return onSnapshot(
-        docRef,
+      let currentSettings = initialSiteData.settings;
+      let currentSections = initialSiteData.sections;
+      let currentProjects = initialSiteData.projects;
+
+      const notify = () => {
+        const merged: SiteData = {
+          settings: currentSettings,
+          sections: currentSections,
+          projects: [...currentProjects].sort((a, b) => (a.order || 0) - (b.order || 0)),
+          updatedAt: new Date().toISOString()
+        };
+        localStorage.setItem('kg_site_content', JSON.stringify(merged));
+        callback(merged);
+      };
+
+      // 1. Listen to site settings & sections
+      const unsubSettings = onSnapshot(
+        doc(db, 'site_content', 'settings'),
         (snapshot) => {
           if (snapshot.exists()) {
-            const cloudData = snapshot.data() as SiteData;
-            if (cloudData && cloudData.settings && cloudData.sections && cloudData.projects) {
-              localStorage.setItem('kg_site_content', JSON.stringify(cloudData));
-              callback(cloudData);
-            }
+            const data = snapshot.data() as any;
+            if (data.settings) currentSettings = data.settings;
+            if (data.sections) currentSections = data.sections;
+            notify();
           }
         },
-        (err) => {
-          console.warn('Firestore real-time subscription error:', err);
-        }
+        (err) => console.warn('Firestore settings subscription note:', err)
       );
+
+      // 2. Listen to projects collection (individual project documents)
+      const unsubProjects = onSnapshot(
+        collection(db, 'projects'),
+        (snapshot) => {
+          if (!snapshot.empty) {
+            const loaded = snapshot.docs.map(d => d.data() as PortfolioProject);
+            currentProjects = loaded;
+            notify();
+          }
+        },
+        (err) => console.warn('Firestore projects subscription note:', err)
+      );
+
+      // 3. Fallback listener for legacy single-document 'main'
+      const unsubMain = onSnapshot(
+        doc(db, 'site_content', 'main'),
+        (snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.data() as any;
+            if (data.settings && !currentSettings) currentSettings = data.settings;
+            if (data.sections && !currentSections) currentSections = data.sections;
+            if (data.projects && (!currentProjects || currentProjects.length === 0)) {
+              currentProjects = data.projects;
+            }
+            notify();
+          }
+        },
+        () => {}
+      );
+
+      return () => {
+        unsubSettings();
+        unsubProjects();
+        unsubMain();
+      };
     } catch (err) {
-      console.warn('Could not initialize real-time Firestore listener:', err);
+      console.warn('Could not initialize real-time Firestore listeners:', err);
       return () => {};
     }
   },
 
   // Public data fetcher
   async getPublicContent(): Promise<SiteData> {
-    // 1. Try Firebase Firestore Cloud Database first for universal cross-device consistency
+    // 1. Try Firebase Firestore Cloud Database first
     try {
       const db = getDb();
       if (db) {
-        const docRef = doc(db, 'site_content', 'main');
-        const snapshot = await getDoc(docRef);
-        if (snapshot.exists()) {
-          const cloudData = snapshot.data() as SiteData;
-          if (cloudData && cloudData.settings && cloudData.sections) {
-            localStorage.setItem('kg_site_content', JSON.stringify(cloudData));
-            return cloudData;
-          }
+        let settings = initialSiteData.settings;
+        let sections = initialSiteData.sections;
+        let projects: PortfolioProject[] = [];
+
+        // Check settings doc
+        const settingsSnap = await getDoc(doc(db, 'site_content', 'settings'));
+        if (settingsSnap.exists()) {
+          const sData = settingsSnap.data() as any;
+          if (sData.settings) settings = sData.settings;
+          if (sData.sections) sections = sData.sections;
         } else {
-          // Initialize default cloud document if first time
-          await setDoc(docRef, { ...initialSiteData, updatedAt: new Date().toISOString() });
+          // Check legacy main doc
+          const mainSnap = await getDoc(doc(db, 'site_content', 'main'));
+          if (mainSnap.exists()) {
+            const mData = mainSnap.data() as any;
+            if (mData.settings) settings = mData.settings;
+            if (mData.sections) sections = mData.sections;
+            if (mData.projects) projects = mData.projects;
+          }
+        }
+
+        // Check projects collection
+        const projSnap = await getDocs(collection(db, 'projects'));
+        if (!projSnap.empty) {
+          projects = projSnap.docs.map(d => d.data() as PortfolioProject);
+        }
+
+        // If projects were found in cloud, assemble and return
+        if (projects.length > 0) {
+          projects.sort((a, b) => (a.order || 0) - (b.order || 0));
+          const result: SiteData = {
+            settings,
+            sections,
+            projects,
+            updatedAt: new Date().toISOString()
+          };
+          localStorage.setItem('kg_site_content', JSON.stringify(result));
+          return result;
+        }
+
+        // If Firestore is completely fresh, seed initial content
+        if (projSnap.empty && !settingsSnap.exists()) {
+          await this.saveAdminContent(initialSiteData);
           return initialSiteData;
         }
       }
     } catch (firebaseErr) {
-      console.warn('Firestore initial fetch note (checking fallback endpoints):', firebaseErr);
+      console.warn('Firestore initial fetch note (checking fallback cache):', firebaseErr);
     }
 
     // 2. Try Express server endpoint
@@ -87,7 +178,7 @@ export const apiService = {
         return parsed.data;
       }
     } catch (serverErr) {
-      console.warn('Server API offline/static mode:', serverErr);
+      // Static / offline mode
     }
 
     // 3. Fallback to localStorage or bundled initialData
@@ -95,7 +186,7 @@ export const apiService = {
     if (localSaved) {
       try {
         const parsed = JSON.parse(localSaved);
-        if (parsed && parsed.settings) return parsed;
+        if (parsed && parsed.settings && parsed.projects) return parsed;
       } catch {}
     }
 
@@ -129,7 +220,6 @@ export const apiService = {
         return { success: true, token: parsed.data.token };
       }
 
-      // If backend responded with valid JSON and specific error message and client verification also failed
       if (parsed.data?.error && parsed.status === 401 && !isClientValid) {
         return { success: false, error: parsed.data.error };
       }
@@ -186,23 +276,58 @@ export const apiService = {
   // Save entire dataset to Cloud Database and local caches
   async saveAdminContent(data: SiteData): Promise<void> {
     const token = this.getAdminToken();
-    const payload = {
+    const cleanProjects = (data.projects || []).map((p, idx) => ({
+      ...p,
+      order: typeof p.order === 'number' ? p.order : idx + 1,
+      isPublished: p.isPublished !== false
+    }));
+
+    const cleanData: SiteData = {
       ...data,
+      projects: cleanProjects,
       updatedAt: new Date().toISOString()
     };
 
     // 1. Mirror immediately to localStorage for zero-latency local availability
-    localStorage.setItem('kg_site_content', JSON.stringify(data));
+    localStorage.setItem('kg_site_content', JSON.stringify(cleanData));
 
-    // 2. Persist to Firestore Cloud Database so all other devices receive the changes
-    try {
-      const db = getDb();
-      if (db) {
-        const docRef = doc(db, 'site_content', 'main');
-        await setDoc(docRef, payload);
+    // 2. Persist to Firestore Cloud Database
+    const db = getDb();
+    if (db) {
+      try {
+        // Save settings and sections document
+        await setDoc(doc(db, 'site_content', 'settings'), {
+          settings: cleanData.settings,
+          sections: cleanData.sections,
+          updatedAt: cleanData.updatedAt
+        });
+
+        // Also update main doc with lightweight overview
+        await setDoc(doc(db, 'site_content', 'main'), {
+          settings: cleanData.settings,
+          sections: cleanData.sections,
+          updatedAt: cleanData.updatedAt
+        });
+
+        // Fetch existing projects in Firestore to identify deleted ones
+        const existingDocs = await getDocs(collection(db, 'projects'));
+        const currentIds = new Set(cleanProjects.map(p => p.id));
+
+        // Delete removed projects
+        const deletePromises = existingDocs.docs
+          .filter(d => !currentIds.has(d.id))
+          .map(d => deleteDoc(doc(db, 'projects', d.id)));
+        await Promise.all(deletePromises);
+
+        // Save each project individually so no single document exceeds 1MB
+        const savePromises = cleanProjects.map(proj =>
+          setDoc(doc(db, 'projects', proj.id), proj)
+        );
+        await Promise.all(savePromises);
+      } catch (cloudErr) {
+        console.error('Firestore cloud save error:', cloudErr);
+        throw new Error('Cloud database synchronization note: ' + (cloudErr instanceof Error ? cloudErr.message : String(cloudErr)));
       }
-    } catch (cloudErr) {
-      console.warn('Firestore cloud save notice:', cloudErr);
     }
 
     // 3. Persist to Express backend if online
@@ -213,7 +338,7 @@ export const apiService = {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(cleanData)
       });
     } catch (serverErr) {
       // Backend is optional in static hosting
@@ -226,7 +351,7 @@ export const apiService = {
 
     // 1. Compress & optimize images client-side for rapid cross-device transfer
     const optimizedDataUrls = await Promise.all(
-      files.map(file => optimizeImageFile(file, 1920, 0.85))
+      files.map(file => optimizeImageFile(file, 1440, 0.80))
     );
 
     // 2. Try saving to backend file storage if Express is active
@@ -294,14 +419,29 @@ export const apiService = {
     const token = this.getAdminToken();
     localStorage.removeItem('kg_site_content');
 
-    try {
-      const db = getDb();
-      if (db) {
-        const docRef = doc(db, 'site_content', 'main');
-        await setDoc(docRef, { ...initialSiteData, updatedAt: new Date().toISOString() });
+    const db = getDb();
+    if (db) {
+      try {
+        await setDoc(doc(db, 'site_content', 'settings'), {
+          settings: initialSiteData.settings,
+          sections: initialSiteData.sections,
+          updatedAt: new Date().toISOString()
+        });
+        await setDoc(doc(db, 'site_content', 'main'), {
+          settings: initialSiteData.settings,
+          sections: initialSiteData.sections,
+          updatedAt: new Date().toISOString()
+        });
+
+        // Clear projects collection and re-seed
+        const existingDocs = await getDocs(collection(db, 'projects'));
+        await Promise.all(existingDocs.docs.map(d => deleteDoc(doc(db, 'projects', d.id))));
+        await Promise.all(
+          initialSiteData.projects.map(p => setDoc(doc(db, 'projects', p.id), p))
+        );
+      } catch (cloudErr) {
+        console.warn('Could not reset Firestore:', cloudErr);
       }
-    } catch (cloudErr) {
-      console.warn('Could not reset Firestore:', cloudErr);
     }
 
     try {
@@ -318,4 +458,5 @@ export const apiService = {
     return initialSiteData;
   }
 };
+
 

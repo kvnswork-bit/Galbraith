@@ -52,4 +52,6 @@ export interface SiteData {
   settings: SiteSettings;
   sections: PortfolioSection[];
   projects: PortfolioProject[];
+  updatedAt?: string;
 }
+

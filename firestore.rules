@@ -6,5 +6,19 @@ service cloud.firestore {
       allow read: if true;
       allow write: if true;
     }
+    match /projects/{projectId} {
+      // Allow reading and writing individual project documents
+      allow read: if true;
+      allow write: if true;
+    }
+    match /sections/{sectionId} {
+      // Allow reading and writing section documents
+      allow read: if true;
+      allow write: if true;
+    }
+    match /{document=**} {
+      allow read: if true;
+      allow write: if true;
+    }
   }
 }

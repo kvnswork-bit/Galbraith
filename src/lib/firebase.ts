@@ -1,5 +1,19 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, Firestore, doc, getDoc, setDoc, onSnapshot, Unsubscribe } from 'firebase/firestore';
+import {
+  getFirestore,
+  Firestore,
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+  writeBatch,
+  query,
+  orderBy,
+  onSnapshot,
+  Unsubscribe
+} from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 let firestoreInstance: Firestore | null = null;
@@ -21,5 +35,17 @@ export function getDb(): Firestore | null {
   }
 }
 
-export { doc, getDoc, setDoc, onSnapshot };
+export {
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+  writeBatch,
+  query,
+  orderBy,
+  onSnapshot
+};
 export type { Unsubscribe };
+

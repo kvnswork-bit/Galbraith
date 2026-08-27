@@ -2,7 +2,7 @@
  * High-quality client-side image compression & optimizer
  * Ensures photographic & vector art clarity while maintaining lightweight payload sizes for instant cloud synchronization.
  */
-export async function optimizeImageFile(file: File, maxDimension = 1920, quality = 0.85): Promise<string> {
+export async function optimizeImageFile(file: File, maxDimension = 1440, quality = 0.80): Promise<string> {
   return new Promise((resolve, reject) => {
     // If it's an SVG, read directly as text or data URI
     if (file.type === 'image/svg+xml') {
@@ -48,7 +48,7 @@ export async function optimizeImageFile(file: File, maxDimension = 1920, quality
         // Try webp first for maximum compression & quality, fallback to jpeg
         try {
           const webpData = canvas.toDataURL('image/webp', quality);
-          if (webpData && webpData.startsWith('data:image/webp')) {
+          if (webpData && webpData.startsWith('data:image/webp') && webpData.length < (e.target?.result as string).length) {
             resolve(webpData);
             return;
           }
@@ -56,11 +56,19 @@ export async function optimizeImageFile(file: File, maxDimension = 1920, quality
           // Fallback
         }
 
-        const jpegData = canvas.toDataURL('image/jpeg', quality);
-        resolve(jpegData);
+        try {
+          const jpegData = canvas.toDataURL('image/jpeg', quality);
+          if (jpegData && jpegData.startsWith('data:image/jpeg')) {
+            resolve(jpegData);
+            return;
+          }
+        } catch {
+          // Fallback
+        }
+
+        resolve(e.target?.result as string);
       };
       img.onerror = () => {
-        // If image loading in canvas failed, fallback to raw data url
         resolve(e.target?.result as string);
       };
       img.src = e.target?.result as string;
@@ -69,3 +77,4 @@ export async function optimizeImageFile(file: File, maxDimension = 1920, quality
     reader.readAsDataURL(file);
   });
 }
+
