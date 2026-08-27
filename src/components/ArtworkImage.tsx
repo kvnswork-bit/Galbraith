@@ -31,10 +31,10 @@ export const ArtworkImage: React.FC<ArtworkImageProps> = ({
       case 'square':
         return 'aspect-square';
       case 'full':
-        return 'aspect-[21/9]';
+        return 'max-h-[85vh]';
       case 'auto':
       default:
-        return 'min-h-[260px]';
+        return 'min-h-[220px]';
     }
   };
 
@@ -67,7 +67,7 @@ export const ArtworkImage: React.FC<ArtworkImageProps> = ({
         referrerPolicy="no-referrer"
         onLoad={() => setLoaded(true)}
         onError={() => setError(true)}
-        className={`w-full h-full object-cover transition-all duration-700 ease-out ${
+        className={`w-full h-full object-contain md:object-cover transition-all duration-700 ease-out ${
           loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.02]'
         } ${onClick ? 'group-hover:scale-[1.02]' : ''}`}
       />
