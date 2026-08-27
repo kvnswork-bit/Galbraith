@@ -30,6 +30,7 @@ export interface PortfolioProject {
   isPublished: boolean;
   featured?: boolean;
   layoutStyle?: 'editorial-split' | 'full-gallery' | 'magazine-archive' | 'identity-focus' | 'experimental';
+  displayMode?: 'gallery' | 'individual';
 }
 
 export interface SiteSettings {

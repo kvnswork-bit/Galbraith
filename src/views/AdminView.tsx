@@ -14,6 +14,7 @@ import {
   RotateCcw,
   ArrowLeft,
   Image as ImageIcon,
+  Images,
   Layers,
   FileText,
   Shield,
@@ -229,6 +230,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
       images: [],
       order: adminData.projects.length + 1,
       isPublished: true,
+      displayMode: 'gallery',
       layoutStyle: 'editorial-split'
     });
     setIsNewProject(true);
@@ -638,7 +640,9 @@ export const AdminView: React.FC<AdminViewProps> = ({
                             <span>{sec?.name || 'Unassigned'}</span>
                             {proj.client && <span>· {proj.client}</span>}
                             {proj.year && <span>· {proj.year}</span>}
-                            <span>· {proj.images?.length || 0} plates</span>
+                            <span className="px-1.5 py-0.2 text-[10px] bg-neutral-100 border border-neutral-200 text-black uppercase">
+                              {proj.displayMode === 'individual' ? 'Artwork' : `Gallery (${proj.images?.length || (proj.mainImage ? 1 : 0)})`}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1296,15 +1300,73 @@ export const AdminView: React.FC<AdminViewProps> = ({
               {/* Description */}
               <div>
                 <label className="block text-[10px] font-mono uppercase tracking-wider text-neutral-500 mb-1">
-                  Project Description & Editorial Notes
+                  Project Description, Dates & Editorial Information
                 </label>
                 <textarea
-                  rows={3}
-                  placeholder="Detailed description of the artistic concept, materiality, or campaign scope..."
+                  rows={4}
+                  placeholder="Detailed description of the artistic concept, date notes, materiality, or campaign scope..."
                   value={editingProject.description || ''}
                   onChange={e => setEditingProject({ ...editingProject, description: e.target.value })}
                   className="w-full px-4 py-3 bg-neutral-50 border border-neutral-300 text-xs font-sans text-black focus:outline-none focus:border-black"
                 />
+              </div>
+
+              {/* Presentation Format Selector (Gallery vs. Individual Piece) */}
+              <div className="pt-4 border-t border-neutral-200 space-y-2">
+                <label className="block text-xs font-mono uppercase tracking-wider text-black font-semibold">
+                  Project Display Mode & Setup *
+                </label>
+                <p className="text-[11px] text-neutral-500 font-mono">
+                  Choose how visitors view this project when clicking on its cover image from the section list.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setEditingProject({ ...editingProject, displayMode: 'gallery' })}
+                    className={`p-4 border text-left flex items-start space-x-3 transition-all ${
+                      editingProject.displayMode === 'gallery' || (!editingProject.displayMode && (editingProject.images?.length || 0) > 1)
+                        ? 'border-black bg-neutral-100 ring-1 ring-black'
+                        : 'border-neutral-200 bg-white hover:border-neutral-400'
+                    }`}
+                  >
+                    <Images size={18} className="text-black flex-shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-xs font-mono uppercase font-bold text-black flex items-center space-x-1.5">
+                        <span>Multi-Image Gallery</span>
+                        {(editingProject.displayMode === 'gallery' || (!editingProject.displayMode && (editingProject.images?.length || 0) > 1)) && (
+                          <span className="text-[9px] bg-black text-white px-1.5 py-0.2">ACTIVE</span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-neutral-600 font-light mt-1 leading-relaxed">
+                        Interactive full slideshow, thumbnail filmstrip, and grid mode. Ideal for photo shoots, multi-page campaigns, & series.
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setEditingProject({ ...editingProject, displayMode: 'individual' })}
+                    className={`p-4 border text-left flex items-start space-x-3 transition-all ${
+                      editingProject.displayMode === 'individual'
+                        ? 'border-black bg-neutral-100 ring-1 ring-black'
+                        : 'border-neutral-200 bg-white hover:border-neutral-400'
+                    }`}
+                  >
+                    <FileText size={18} className="text-black flex-shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-xs font-mono uppercase font-bold text-black flex items-center space-x-1.5">
+                        <span>Individual Art Piece</span>
+                        {editingProject.displayMode === 'individual' && (
+                          <span className="text-[9px] bg-black text-white px-1.5 py-0.2">ACTIVE</span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-neutral-600 font-light mt-1 leading-relaxed">
+                        Museum exhibition plaque emphasizing the single piece, prominent dates, medium/materials, client, & detailed description.
+                      </p>
+                    </div>
+                  </button>
+                </div>
               </div>
 
               {/* Multi-Image Uploader for Artwork Plates */}

@@ -147,46 +147,56 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
               {/* Curated Grid of Projects for this section */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-                {sectionProjects.map((project, pIdx) => (
-                  <div
-                    key={project.id}
-                    onClick={() => onSelectProject(project)}
-                    className="group cursor-pointer space-y-3"
-                  >
-                    {/* Artwork image / Black placeholder */}
-                    <ArtworkImage
-                      src={project.mainImage}
-                      alt={project.title}
-                      aspectRatio={
-                        section.slug === 'photography'
-                          ? pIdx % 2 === 0 ? 'portrait' : 'landscape'
-                          : section.slug === 'logos'
-                          ? 'square'
-                          : 'landscape'
-                      }
-                      className="transition-all duration-300"
-                    />
+                {sectionProjects.map((project, pIdx) => {
+                  const hasMultipleImages = project.images && project.images.length > 1;
+                  const isGallery = project.displayMode === 'gallery' || (!project.displayMode && hasMultipleImages);
 
-                    {/* Meta info */}
-                    <div className="flex justify-between items-baseline pt-1">
-                      <div>
-                        <h3 className="text-sm font-semibold tracking-wide text-black group-hover:underline uppercase">
-                          {project.title}
-                        </h3>
-                        {project.client && (
-                          <div className="text-xs text-neutral-500 font-light">
-                            {project.client}
+                  return (
+                    <div
+                      key={project.id}
+                      onClick={() => onSelectProject(project)}
+                      className="group cursor-pointer space-y-3"
+                    >
+                      {/* Artwork image / Black placeholder */}
+                      <div className="relative overflow-hidden bg-neutral-100 border border-neutral-200/60">
+                        <ArtworkImage
+                          src={project.mainImage || project.images?.[0]?.url}
+                          alt={project.title}
+                          aspectRatio={
+                            section.slug === 'photography'
+                              ? pIdx % 2 === 0 ? 'portrait' : 'landscape'
+                              : section.slug === 'logos'
+                              ? 'square'
+                              : 'landscape'
+                          }
+                          className="transition-all duration-300 group-hover:scale-[1.02]"
+                        />
+                        <div className="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-xs text-white text-[8px] font-mono uppercase tracking-widest px-2 py-0.5">
+                          {isGallery ? 'GALLERY' : 'ARTWORK'}
+                        </div>
+                      </div>
+
+                      {/* Meta info */}
+                      <div className="flex justify-between items-baseline pt-1">
+                        <div>
+                          <h3 className="text-sm font-semibold tracking-wide text-black group-hover:underline uppercase">
+                            {project.title}
+                          </h3>
+                          {project.client && (
+                            <div className="text-xs text-neutral-500 font-light">
+                              {project.client}
+                            </div>
+                          )}
+                        </div>
+                        {project.year && (
+                          <div className="text-[11px] font-mono text-neutral-400">
+                            {project.year}
                           </div>
                         )}
                       </div>
-                      {project.year && (
-                        <div className="text-[11px] font-mono text-neutral-400">
-                          {project.year}
-                        </div>
-                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Bottom section dive-in button on mobile */}
