@@ -231,6 +231,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
       order: adminData.projects.length + 1,
       isPublished: true,
       displayMode: 'gallery',
+      showDetails: true,
       layoutStyle: 'editorial-split'
     });
     setIsNewProject(true);
@@ -1309,6 +1310,29 @@ export const AdminView: React.FC<AdminViewProps> = ({
                   onChange={e => setEditingProject({ ...editingProject, description: e.target.value })}
                   className="w-full px-4 py-3 bg-neutral-50 border border-neutral-300 text-xs font-sans text-black focus:outline-none focus:border-black"
                 />
+              </div>
+
+              {/* Details & Information Visibility Toggle */}
+              <div className="p-4 bg-neutral-50 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <span className="text-xs font-mono uppercase font-bold text-black block">
+                    Artwork Details & Descriptions (Title, Client, Dates, Notes)
+                  </span>
+                  <p className="text-[11px] text-neutral-500 font-light mt-0.5">
+                    Toggle whether curatorial descriptions and dates should be displayed alongside images or kept strictly visual.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingProject({ ...editingProject, showDetails: editingProject.showDetails === false ? true : false })}
+                  className={`px-4 py-2 text-xs font-mono uppercase tracking-wider border transition-all whitespace-nowrap ${
+                    editingProject.showDetails !== false
+                      ? 'bg-black text-white border-black font-semibold'
+                      : 'bg-white text-neutral-500 border-neutral-300'
+                  }`}
+                >
+                  {editingProject.showDetails !== false ? 'DETAILS: ENABLED' : 'DETAILS: HIDDEN'}
+                </button>
               </div>
 
               {/* Presentation Format Selector (Gallery vs. Individual Piece) */}

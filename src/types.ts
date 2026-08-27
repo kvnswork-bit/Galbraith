@@ -6,6 +6,7 @@ export interface PortfolioSection {
   order: number;
   isPublished: boolean;
   isCustom?: boolean;
+  showDetails?: boolean;
 }
 
 export interface ProjectImage {
@@ -31,6 +32,7 @@ export interface PortfolioProject {
   featured?: boolean;
   layoutStyle?: 'editorial-split' | 'full-gallery' | 'magazine-archive' | 'identity-focus' | 'experimental';
   displayMode?: 'gallery' | 'individual';
+  showDetails?: boolean;
 }
 
 export interface SiteSettings {

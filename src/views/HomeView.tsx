@@ -108,23 +108,28 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </section>
 
       {/* -------------------------------------------------------------
-          CURATED PORTFOLIO SECTIONS PREVIEW
+          CURATED PORTFOLIO SECTIONS PREVIEW (EXACTLY 1 IMAGE PER SECTION)
           ------------------------------------------------------------- */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 space-y-28 md:space-y-36">
+      <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 space-y-24 md:space-y-32">
         {activeSections.map((section, sIdx) => {
           const sectionProjects = (projects || [])
             .filter(p => p.sectionId === section.id && p.isPublished !== false)
             .sort((a, b) => a.order - b.order);
 
+          const leadProject = sectionProjects[0];
+
           return (
-            <div key={section.id} id={`section-${section.slug}`} className="space-y-8">
+            <div key={section.id} id={`section-${section.slug}`} className="space-y-6">
               {/* Section Header */}
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-neutral-200">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-5 border-b border-neutral-200">
                 <div className="space-y-1">
                   <div className="text-[10px] font-mono tracking-[0.3em] uppercase text-neutral-400">
                     DISCIPLINE 0{sIdx + 1}
                   </div>
-                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif tracking-tight text-black">
+                  <h2
+                    onClick={() => onNavigate(section.slug)}
+                    className="text-3xl sm:text-4xl md:text-5xl font-serif tracking-tight text-black cursor-pointer hover:opacity-80 transition-opacity"
+                  >
                     {section.name}
                   </h2>
                 </div>
@@ -145,69 +150,62 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </div>
               </div>
 
-              {/* Curated Grid of Projects for this section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-                {sectionProjects.map((project, pIdx) => {
-                  const hasMultipleImages = project.images && project.images.length > 1;
-                  const isGallery = project.displayMode === 'gallery' || (!project.displayMode && hasMultipleImages);
-
-                  return (
-                    <div
-                      key={project.id}
-                      onClick={() => onSelectProject(project)}
-                      className="group cursor-pointer space-y-3"
-                    >
-                      {/* Artwork image / Black placeholder */}
-                      <div className="relative overflow-hidden bg-neutral-100 border border-neutral-200/60">
-                        <ArtworkImage
-                          src={project.mainImage || project.images?.[0]?.url}
-                          alt={project.title}
-                          aspectRatio={
-                            section.slug === 'photography'
-                              ? pIdx % 2 === 0 ? 'portrait' : 'landscape'
-                              : section.slug === 'logos'
-                              ? 'square'
-                              : 'landscape'
-                          }
-                          className="transition-all duration-300 group-hover:scale-[1.02]"
-                        />
-                        <div className="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-xs text-white text-[8px] font-mono uppercase tracking-widest px-2 py-0.5">
-                          {isGallery ? 'GALLERY' : 'ARTWORK'}
-                        </div>
-                      </div>
-
-                      {/* Meta info */}
-                      <div className="flex justify-between items-baseline pt-1">
-                        <div>
-                          <h3 className="text-sm font-semibold tracking-wide text-black group-hover:underline uppercase">
-                            {project.title}
-                          </h3>
-                          {project.client && (
-                            <div className="text-xs text-neutral-500 font-light">
-                              {project.client}
-                            </div>
-                          )}
-                        </div>
-                        {project.year && (
-                          <div className="text-[11px] font-mono text-neutral-400">
-                            {project.year}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Bottom section dive-in button on mobile */}
-              <div className="md:hidden pt-2">
-                <button
+              {/* Exactly ONE Cover Image per section */}
+              {leadProject ? (
+                <div
                   onClick={() => onNavigate(section.slug)}
-                  className="w-full py-3 border border-black text-xs font-mono uppercase tracking-[0.2em] text-black hover:bg-black hover:text-white transition-colors text-center"
+                  className="group cursor-pointer space-y-3"
                 >
-                  EXPLORE {section.name} ARCHIVE ({sectionProjects.length})
-                </button>
-              </div>
+                  <div className="relative overflow-hidden bg-neutral-100 border border-neutral-200/80 shadow-2xs">
+                    <ArtworkImage
+                      src={leadProject.mainImage || leadProject.images?.[0]?.url}
+                      alt={leadProject.title}
+                      aspectRatio={
+                        section.slug === 'photography'
+                          ? 'landscape'
+                          : section.slug === 'logos'
+                          ? 'square'
+                          : 'landscape'
+                      }
+                      className="w-full transition-transform duration-700 group-hover:scale-[1.01]"
+                    />
+                    
+                    {/* Floating Section Explore Badge */}
+                    <div className="absolute bottom-4 right-4 bg-black/85 backdrop-blur-xs text-white px-3.5 py-1.5 text-[10px] font-mono tracking-widest uppercase flex items-center space-x-2">
+                      <span>ENTER {section.name} GALLERY</span>
+                      <ArrowRight size={12} />
+                    </div>
+                  </div>
+
+                  {/* Meta Information for the single lead piece */}
+                  <div className="flex justify-between items-baseline pt-1">
+                    <div>
+                      <h3 className="text-base sm:text-lg font-serif tracking-tight text-black group-hover:underline uppercase">
+                        {leadProject.title}
+                      </h3>
+                      {leadProject.client && (
+                        <div className="text-xs text-neutral-500 font-light">
+                          {leadProject.client}
+                        </div>
+                      )}
+                    </div>
+                    {leadProject.year && (
+                      <div className="text-[11px] font-mono text-neutral-400">
+                        {leadProject.year}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  onClick={() => onNavigate(section.slug)}
+                  className="py-16 text-center bg-neutral-50 border border-dashed border-neutral-200 cursor-pointer"
+                >
+                  <p className="text-xs font-mono uppercase tracking-widest text-neutral-400">
+                    No works uploaded in {section.name} yet
+                  </p>
+                </div>
+              )}
             </div>
           );
         })}
