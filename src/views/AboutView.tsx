@@ -26,7 +26,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ settings, onNavigateHome }
   };
 
   return (
-    <div className="w-full pt-28 md:pt-36 pb-20 max-w-7xl mx-auto px-6 md:px-12 animate-in fade-in duration-300">
+    <div className="w-full pt-32 sm:pt-36 md:pt-40 pb-20 max-w-7xl mx-auto px-6 md:px-12 animate-in fade-in duration-300">
       {/* Top back navigation */}
       <button
         onClick={onNavigateHome}
@@ -50,10 +50,10 @@ export const AboutView: React.FC<AboutViewProps> = ({ settings, onNavigateHome }
                 src={settings.logoUrl}
                 alt="Kevin Galbraith Signature"
                 referrerPolicy="no-referrer"
-                className="max-h-20 w-auto object-contain"
+                className="max-h-28 sm:max-h-32 w-auto object-contain"
               />
             ) : (
-              <div className="text-2xl font-serif text-black">Kevin Galbraith</div>
+              <div className="text-3xl font-serif text-black">Kevin Galbraith</div>
             )}
           </div>
 

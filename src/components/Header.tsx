@@ -43,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
-        {/* LOGO - Upper Left Corner */}
+        {/* LOGO - Upper Left Corner (50% larger presentation) */}
         <button
           id="header-logo-button"
           onClick={() => handleLinkClick('home')}
@@ -55,10 +55,12 @@ export const Header: React.FC<HeaderProps> = ({
               src={settings.logoUrl}
               alt="Kevin Galbraith"
               referrerPolicy="no-referrer"
-              className="h-9 sm:h-11 md:h-12 w-auto object-contain transition-all"
+              className={`w-auto object-contain transition-all duration-300 ${
+                scrolled ? 'h-11 sm:h-14 md:h-16' : 'h-[54px] sm:h-[66px] md:h-[72px]'
+              }`}
             />
           ) : (
-            <span className="font-serif text-2xl tracking-wider text-black">Kevin Galbraith</span>
+            <span className="font-serif text-3xl sm:text-4xl tracking-wider text-black">Kevin Galbraith</span>
           )}
         </button>
 
@@ -114,7 +116,7 @@ export const Header: React.FC<HeaderProps> = ({
       {mobileMenuOpen && (
         <div
           id="mobile-menu-drawer"
-          className="lg:hidden fixed inset-0 top-[60px] sm:top-[70px] bg-white z-40 flex flex-col px-8 py-12 justify-between border-t border-neutral-100 overflow-y-auto animate-in fade-in duration-200"
+          className="lg:hidden fixed inset-0 top-[74px] sm:top-[88px] bg-white z-40 flex flex-col px-8 py-12 justify-between border-t border-neutral-100 overflow-y-auto animate-in fade-in duration-200"
         >
           <div className="flex flex-col space-y-6 pt-4">
             <button

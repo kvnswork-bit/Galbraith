@@ -898,11 +898,11 @@ export const AdminView: React.FC<AdminViewProps> = ({
                     <img
                       src={adminData.settings.logoUrl}
                       alt="Logo Preview"
-                      className="max-h-20 w-auto object-contain"
+                      className="max-h-28 sm:max-h-32 w-auto object-contain"
                       referrerPolicy="no-referrer"
                     />
                   ) : (
-                    <span className="font-serif text-2xl">Kevin Galbraith</span>
+                    <span className="font-serif text-3xl sm:text-4xl">Kevin Galbraith</span>
                   )}
                   <span className="text-[10px] font-mono text-neutral-400 tracking-widest uppercase">
                     ACTIVE HEADER LOGO

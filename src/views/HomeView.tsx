@@ -21,7 +21,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     .sort((a, b) => a.order - b.order);
 
   return (
-    <div className="w-full pt-20 md:pt-28 pb-16">
+    <div className="w-full pt-28 sm:pt-32 md:pt-36 pb-16">
       {/* -------------------------------------------------------------
           HERO SECTION — High-End Editorial Presentation
           ------------------------------------------------------------- */}

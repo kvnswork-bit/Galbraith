@@ -375,7 +375,7 @@ export const PortfolioSectionView: React.FC<PortfolioSectionViewProps> = ({
   );
 
   return (
-    <div className="w-full pt-28 md:pt-36 pb-20 max-w-7xl mx-auto px-6 md:px-12 animate-in fade-in duration-300">
+    <div className="w-full pt-32 sm:pt-36 md:pt-40 pb-20 max-w-7xl mx-auto px-6 md:px-12 animate-in fade-in duration-300">
       {/* Top back navigation */}
       <button
         onClick={onNavigateHome}
