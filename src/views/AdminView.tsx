@@ -38,6 +38,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
   // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
@@ -367,18 +368,42 @@ export const AdminView: React.FC<AdminViewProps> = ({
 
           <form onSubmit={handleLogin} className="space-y-5 bg-neutral-50 p-8 border border-neutral-200">
             <div>
-              <label className="block text-[10px] font-mono uppercase tracking-[0.25em] text-neutral-500 mb-2">
-                Administrator Keycode / Password
-              </label>
-              <input
-                type="password"
-                required
-                value={passwordInput}
-                onChange={e => setPasswordInput(e.target.value)}
-                placeholder="••••••••••••"
-                className="w-full px-4 py-3 bg-white border border-neutral-300 text-sm font-mono text-black focus:outline-none focus:border-black"
-                autoFocus
-              />
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-[10px] font-mono uppercase tracking-[0.25em] text-neutral-500">
+                  Administrator Keycode / Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 hover:text-black flex items-center space-x-1"
+                >
+                  {showPassword ? <EyeOff size={12} /> : <Eye size={12} />}
+                  <span>{showPassword ? 'HIDE' : 'SHOW'}</span>
+                </button>
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={passwordInput}
+                  onChange={e => setPasswordInput(e.target.value)}
+                  placeholder="Hgert1903@!"
+                  className="w-full px-4 py-3 bg-white border border-neutral-300 text-sm font-mono text-black focus:outline-none focus:border-black pr-10"
+                  autoFocus
+                />
+              </div>
+
+              <div className="mt-2.5 flex items-center justify-between text-[11px] font-mono text-neutral-500">
+                <span>Default: <code className="text-black bg-neutral-200 px-1 py-0.5 font-bold select-all">Hgert1903@!</code></span>
+                <button
+                  type="button"
+                  onClick={() => setPasswordInput('Hgert1903@!')}
+                  className="text-black underline uppercase text-[10px] tracking-wider hover:text-neutral-600 font-medium"
+                >
+                  Fill Default
+                </button>
+              </div>
             </div>
 
             {authError && (
