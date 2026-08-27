@@ -1,0 +1,34 @@
+{
+  "entities": {
+    "site_content": {
+      "title": "SiteContent",
+      "description": "Global portfolio content, projects, artwork plates, and site settings",
+      "type": "object",
+      "properties": {
+        "settings": {
+          "type": "object",
+          "description": "Site metadata, typography, texts, hero and logo settings"
+        },
+        "sections": {
+          "type": "array",
+          "description": "Portfolio sections list"
+        },
+        "projects": {
+          "type": "array",
+          "description": "Portfolio projects and image plates"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp of last modification"
+        }
+      },
+      "required": ["settings", "sections", "projects"]
+    }
+  },
+  "firestore": {
+    "/site_content/{contentId}": {
+      "schema": "site_content",
+      "description": "Global portfolio content document synchronized across all visitor devices"
+    }
+  }
+}

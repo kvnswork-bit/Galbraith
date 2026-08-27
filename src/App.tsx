@@ -32,6 +32,19 @@ export default function App() {
 
   useEffect(() => {
     refreshContent();
+    // Subscribe to real-time changes so edits/uploads on any device update immediately
+    const unsubscribe = apiService.subscribePublicContent((newData) => {
+      if (newData && newData.settings) {
+        setData(newData);
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
   }, []);
 
   // Hash-based routing for direct link navigation (e.g. #about, #studio-admin, #photography)

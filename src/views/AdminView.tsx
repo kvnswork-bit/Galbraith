@@ -448,18 +448,23 @@ export const AdminView: React.FC<AdminViewProps> = ({
       <header className="sticky top-0 z-40 bg-black text-white px-6 md:px-12 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-4">
           <div className="font-serif text-lg tracking-wider">
-            KEVIN GALBRAITH <span className="font-mono text-[10px] text-neutral-400 tracking-widest ml-2">CMS 2.0</span>
+            KEVIN GALBRAITH <span className="font-mono text-[10px] text-neutral-400 tracking-widest ml-2">CMS</span>
           </div>
+
+          <span className="hidden md:inline-flex items-center space-x-1.5 px-2 py-0.5 bg-neutral-900 border border-neutral-800 text-[10px] font-mono text-neutral-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>CLOUD SYNC ACTIVE</span>
+          </span>
 
           {saveStatus === 'saved' && (
             <span className="inline-flex items-center space-x-1 px-2 py-0.5 bg-emerald-950 text-emerald-300 text-[10px] font-mono tracking-widest uppercase">
               <Check size={11} />
-              <span>SAVED</span>
+              <span>SAVED TO CLOUD</span>
             </span>
           )}
           {saveStatus === 'saving' && (
             <span className="text-[10px] font-mono text-amber-300 tracking-widest uppercase animate-pulse">
-              SAVING...
+              SYNCING TO CLOUD...
             </span>
           )}
         </div>

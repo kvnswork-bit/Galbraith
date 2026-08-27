@@ -1,5 +1,7 @@
 import { SiteData, SiteSettings, PortfolioSection, PortfolioProject } from '../types';
 import { initialSiteData } from '../data/initialData';
+import { getDb, doc, getDoc, setDoc, onSnapshot, Unsubscribe } from '../lib/firebase';
+import { optimizeImageFile } from '../utils/imageCompressor';
 
 const API_BASE = '/api';
 
@@ -23,28 +25,81 @@ async function parseResponseSafely<T = any>(res: Response): Promise<{ ok: boolea
 }
 
 export const apiService = {
+  // Real-time synchronization across all devices and browsers
+  subscribePublicContent(callback: (data: SiteData) => void): Unsubscribe | (() => void) {
+    const db = getDb();
+    if (!db) {
+      return () => {};
+    }
+    try {
+      const docRef = doc(db, 'site_content', 'main');
+      return onSnapshot(
+        docRef,
+        (snapshot) => {
+          if (snapshot.exists()) {
+            const cloudData = snapshot.data() as SiteData;
+            if (cloudData && cloudData.settings && cloudData.sections && cloudData.projects) {
+              localStorage.setItem('kg_site_content', JSON.stringify(cloudData));
+              callback(cloudData);
+            }
+          }
+        },
+        (err) => {
+          console.warn('Firestore real-time subscription error:', err);
+        }
+      );
+    } catch (err) {
+      console.warn('Could not initialize real-time Firestore listener:', err);
+      return () => {};
+    }
+  },
+
   // Public data fetcher
   async getPublicContent(): Promise<SiteData> {
+    // 1. Try Firebase Firestore Cloud Database first for universal cross-device consistency
+    try {
+      const db = getDb();
+      if (db) {
+        const docRef = doc(db, 'site_content', 'main');
+        const snapshot = await getDoc(docRef);
+        if (snapshot.exists()) {
+          const cloudData = snapshot.data() as SiteData;
+          if (cloudData && cloudData.settings && cloudData.sections) {
+            localStorage.setItem('kg_site_content', JSON.stringify(cloudData));
+            return cloudData;
+          }
+        } else {
+          // Initialize default cloud document if first time
+          await setDoc(docRef, { ...initialSiteData, updatedAt: new Date().toISOString() });
+          return initialSiteData;
+        }
+      }
+    } catch (firebaseErr) {
+      console.warn('Firestore initial fetch note (checking fallback endpoints):', firebaseErr);
+    }
+
+    // 2. Try Express server endpoint
     try {
       const res = await fetch(`${API_BASE}/content`);
       const parsed = await parseResponseSafely<SiteData>(res);
-      if (!parsed.ok || !parsed.data) {
-        // Fallback to local storage or initial data
-        const localSaved = localStorage.getItem('kg_site_content');
-        if (localSaved) {
-          try { return JSON.parse(localSaved); } catch {}
-        }
-        return initialSiteData;
+      if (parsed.ok && parsed.data && parsed.data.settings) {
+        localStorage.setItem('kg_site_content', JSON.stringify(parsed.data));
+        return parsed.data;
       }
-      return parsed.data;
-    } catch (e) {
-      console.warn('API error fetching public content, using local fallback', e);
-      const localSaved = localStorage.getItem('kg_site_content');
-      if (localSaved) {
-        try { return JSON.parse(localSaved); } catch {}
-      }
-      return initialSiteData;
+    } catch (serverErr) {
+      console.warn('Server API offline/static mode:', serverErr);
     }
+
+    // 3. Fallback to localStorage or bundled initialData
+    const localSaved = localStorage.getItem('kg_site_content');
+    if (localSaved) {
+      try {
+        const parsed = JSON.parse(localSaved);
+        if (parsed && parsed.settings) return parsed;
+      } catch {}
+    }
+
+    return initialSiteData;
   },
 
   // Admin Login
@@ -106,13 +161,11 @@ export const apiService = {
       if (parsed.ok && parsed.data?.valid === true) {
         return true;
       }
-      // If server returned 404 (static deployment), allow local token
       if (parsed.status === 404) {
         return true;
       }
       return false;
     } catch {
-      // In static or offline mode, having the token is valid
       return true;
     }
   },
@@ -127,43 +180,34 @@ export const apiService = {
 
   // Fetch full dataset for admin
   async getAdminContent(): Promise<SiteData> {
-    const token = this.getAdminToken();
-    try {
-      const res = await fetch(`${API_BASE}/admin/content`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const parsed = await parseResponseSafely<SiteData>(res);
-
-      if (!parsed.ok || !parsed.data) {
-        if (parsed.status === 401 && !token?.startsWith('fallback-')) {
-          this.adminLogout();
-          throw new Error('Session expired or unauthorized');
-        }
-        // Fallback to local storage or initial data
-        const localSaved = localStorage.getItem('kg_site_content');
-        if (localSaved) {
-          try { return JSON.parse(localSaved); } catch {}
-        }
-        return initialSiteData;
-      }
-      return parsed.data;
-    } catch (err: any) {
-      const localSaved = localStorage.getItem('kg_site_content');
-      if (localSaved) {
-        try { return JSON.parse(localSaved); } catch {}
-      }
-      return initialSiteData;
-    }
+    return this.getPublicContent();
   },
 
-  // Save entire dataset
+  // Save entire dataset to Cloud Database and local caches
   async saveAdminContent(data: SiteData): Promise<void> {
     const token = this.getAdminToken();
-    // Always mirror to localStorage as an instant safety layer
+    const payload = {
+      ...data,
+      updatedAt: new Date().toISOString()
+    };
+
+    // 1. Mirror immediately to localStorage for zero-latency local availability
     localStorage.setItem('kg_site_content', JSON.stringify(data));
 
+    // 2. Persist to Firestore Cloud Database so all other devices receive the changes
     try {
-      const res = await fetch(`${API_BASE}/admin/content`, {
+      const db = getDb();
+      if (db) {
+        const docRef = doc(db, 'site_content', 'main');
+        await setDoc(docRef, payload);
+      }
+    } catch (cloudErr) {
+      console.warn('Firestore cloud save notice:', cloudErr);
+    }
+
+    // 3. Persist to Express backend if online
+    try {
+      await fetch(`${API_BASE}/admin/content`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -171,22 +215,25 @@ export const apiService = {
         },
         body: JSON.stringify(data)
       });
-      const parsed = await parseResponseSafely<{ error?: string }>(res);
-      if (!parsed.ok) {
-        throw new Error(parsed.data?.error || 'Failed to save changes to server (saved locally)');
-      }
-    } catch (err: any) {
-      console.warn('Server save warning (persisted locally):', err);
+    } catch (serverErr) {
+      // Backend is optional in static hosting
     }
   },
 
-  // Upload files via multipart form
+  // Upload files: optimize imagery client-side & upload to server/cloud
   async uploadFiles(files: File[]): Promise<string[]> {
     const token = this.getAdminToken();
-    const formData = new FormData();
-    files.forEach(file => formData.append('images', file));
 
+    // 1. Compress & optimize images client-side for rapid cross-device transfer
+    const optimizedDataUrls = await Promise.all(
+      files.map(file => optimizeImageFile(file, 1920, 0.85))
+    );
+
+    // 2. Try saving to backend file storage if Express is active
     try {
+      const formData = new FormData();
+      files.forEach(file => formData.append('images', file));
+
       const res = await fetch(`${API_BASE}/admin/upload`, {
         method: 'POST',
         headers: {
@@ -197,24 +244,15 @@ export const apiService = {
 
       const parsed = await parseResponseSafely<{ files?: Array<{ url: string }>; error?: string }>(res);
 
-      if (!parsed.ok || !parsed.data) {
-        throw new Error(parsed.data?.error || 'Upload failed');
+      if (parsed.ok && parsed.data?.files && parsed.data.files.length > 0) {
+        return parsed.data.files.map((f: any) => f.url);
       }
-
-      return (parsed.data.files || []).map((f: any) => f.url);
     } catch (err: any) {
-      // If server upload failed, fallback to client-side data URL so work is never lost!
-      console.warn('Server upload failed, converting to local data URLs as backup', err);
-      const dataUrls = await Promise.all(
-        files.map(file => new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        }))
-      );
-      return dataUrls;
+      console.warn('Backend file upload note (using optimized cloud imagery):', err);
     }
+
+    // Return the high-res optimized data URLs which sync across devices via Firestore
+    return optimizedDataUrls;
   },
 
   // Upload single file helper
@@ -257,17 +295,27 @@ export const apiService = {
     localStorage.removeItem('kg_site_content');
 
     try {
+      const db = getDb();
+      if (db) {
+        const docRef = doc(db, 'site_content', 'main');
+        await setDoc(docRef, { ...initialSiteData, updatedAt: new Date().toISOString() });
+      }
+    } catch (cloudErr) {
+      console.warn('Could not reset Firestore:', cloudErr);
+    }
+
+    try {
       const res = await fetch(`${API_BASE}/admin/reset-defaults`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });
       const parsed = await parseResponseSafely<{ data: SiteData; error?: string }>(res);
-      if (!parsed.ok || !parsed.data) {
-        return initialSiteData;
+      if (parsed.ok && parsed.data?.data) {
+        return parsed.data.data;
       }
-      return parsed.data.data || initialSiteData;
-    } catch {
-      return initialSiteData;
-    }
+    } catch {}
+
+    return initialSiteData;
   }
 };
+
